@@ -1,0 +1,1205 @@
+==================
+extern declaration
+==================
+
+extern sqrt : Float(Float) = "camille_sqrt"
+
+---
+
+(source_file
+  (extern_definition
+    (lower_identifier)
+    (type_application
+      (type_constructor_path
+        (type_constructor))
+      (type_constructor_path
+        (type_constructor)))
+    (string)))
+
+==================
+top-level let with underscore number
+==================
+
+let pi = 1_000
+
+---
+
+(source_file
+  (value_definition
+    (lower_identifier)
+    (number
+      (decimal_number))))
+
+==================
+tuple expression
+==================
+
+let point = #(1, 2, 3)
+
+---
+
+(source_file
+  (value_definition
+    (lower_identifier)
+    (tuple_expression
+      (number
+        (decimal_number))
+      (number
+        (decimal_number))
+      (number
+        (decimal_number)))))
+
+==================
+function with case and wildcard
+==================
+
+let describe = (n) => {
+  case n {
+    0 => "zero"
+    _ => "many"
+  }
+}
+
+---
+
+(source_file
+  (value_definition
+    (lower_identifier)
+    (lambda_expression
+      (parenthesized_pattern
+        (lower_identifier))
+      (block
+        (case_expression
+          (lower_identifier)
+          (case_arm
+            (number
+              (decimal_number))
+            (string))
+          (case_arm
+            (wildcard)
+            (string)))))))
+
+==================
+numeric literals in every base
+==================
+
+let bin = 0b1010
+let oct = 0o17
+let hex = 0xFF
+let dec = 1_000
+
+---
+
+(source_file
+  (value_definition
+    (lower_identifier)
+    (number
+      (binary_number)))
+  (value_definition
+    (lower_identifier)
+    (number
+      (octal_number)))
+  (value_definition
+    (lower_identifier)
+    (number
+      (hex_number)))
+  (value_definition
+    (lower_identifier)
+    (number
+      (decimal_number))))
+
+==================
+operator precedence: * before +
+==================
+
+let ok = a + b * c
+
+---
+
+(source_file
+  (value_definition
+    (lower_identifier)
+    (binary_expression
+      (lower_identifier)
+      (binary_expression
+        (lower_identifier)
+        (lower_identifier)))))
+
+==================
+let with binding-operator suffix
+==================
+
+let result = { let/bind r = fetch(url); r }
+
+---
+
+(source_file
+  (value_definition
+    (lower_identifier)
+    (block
+      (expression_let
+        (let_operator)
+        (lower_identifier)
+        (application_expression
+          (lower_identifier)
+          (argument_list
+            (lower_identifier)))
+        (lower_identifier)))))
+
+==================
+string escapes
+==================
+
+let s = "a\nb\"c\\d\eq"
+
+---
+
+(source_file
+  (value_definition
+    (lower_identifier)
+    (string
+      (escape_sequence)
+      (escape_sequence)
+      (escape_sequence)
+      (special_escape))))
+
+==================
+character literals
+==================
+
+let c = 'x'
+let nl = '\n'
+
+---
+
+(source_file
+  (value_definition
+    (lower_identifier)
+    (character))
+  (value_definition
+    (lower_identifier)
+    (character)))
+
+==================
+list with spread
+==================
+
+let xs = [hd, ...tl]
+
+---
+
+(source_file
+  (value_definition
+    (lower_identifier)
+    (list_expression
+      (list_expression_item
+        (lower_identifier))
+      (list_expression_item
+        (lower_identifier)))))
+
+==================
+record expression
+==================
+
+let r = Record { x = 1, y = 2 }
+
+---
+
+(source_file
+  (value_definition
+    (lower_identifier)
+    (record_expression
+      (constructor_path
+        (type_constructor))
+      (record_expression_rows
+        (record_expression_row
+          (lower_identifier)
+          (number
+            (decimal_number)))
+        (record_expression_row
+          (lower_identifier)
+          (number
+            (decimal_number)))))))
+
+==================
+unary minus and infix operators
+==================
+
+let z = -x ** y ^ 2 % 3
+
+---
+
+(source_file
+  (value_definition
+    (lower_identifier)
+    (binary_expression
+      (binary_expression
+        (unary_expression
+          (lower_identifier))
+        (lower_identifier))
+      (binary_expression
+        (number
+          (decimal_number))
+        (number
+          (decimal_number))))))
+
+==================
+nested let-op binding operators
+==================
+
+let z = { let* a = f(); let+ b = g(a); b + a }
+
+---
+
+(source_file
+  (value_definition
+    (lower_identifier)
+    (block
+      (expression_let
+        (let_operator)
+        (lower_identifier)
+        (application_expression
+          (lower_identifier)
+          (unit_expression))
+        (expression_let
+          (let_operator)
+          (lower_identifier)
+          (application_expression
+            (lower_identifier)
+            (argument_list
+              (lower_identifier)))
+          (binary_expression
+            (lower_identifier)
+            (lower_identifier)))))))
+
+==================
+pattern matching with constructors and guards
+==================
+
+let m = x => {
+  case x {
+    Some(v) when v > 0 => v
+    None => 0
+  }
+}
+
+---
+
+(source_file
+  (value_definition
+    (lower_identifier)
+    (lambda_expression
+      (lower_identifier)
+      (block
+        (case_expression
+          (lower_identifier)
+          (case_arm
+            (constructor_pattern
+              (constructor_path
+                (type_constructor))
+              (lower_identifier))
+            (case_guard
+              (binary_expression
+                (lower_identifier)
+                (number
+                  (decimal_number))))
+            (lower_identifier))
+          (case_arm
+            (simple_constructor_pattern
+              (constructor_path
+                (type_constructor)))
+            (number
+              (decimal_number))))))))
+
+==================
+type definitions
+==================
+
+type Option(a) = {
+  Some(a),
+  None
+}
+
+type Alias = Int(String)
+
+---
+
+(source_file
+  (type_definition
+    (type_name
+      (type_constructor))
+    (type_parameters
+      (lower_identifier))
+    (constructor_rows
+      (constructor_row
+        (type_constructor)
+        (constructor_arguments
+          (type_variable
+            (lower_identifier))))
+      (constructor_row
+        (type_constructor))))
+  (type_definition
+    (type_name
+      (type_constructor))
+    (type_application
+      (type_constructor_path
+        (type_constructor))
+      (type_constructor_path
+        (type_constructor)))))
+
+==================
+import declaration
+==================
+
+import Std.List
+
+---
+
+(source_file
+  (import_declaration
+    (module_path
+      (module_path_expression
+        (module_name
+          (type_constructor))
+        (module_name
+          (type_constructor))))))
+
+==================
+include declaration
+==================
+
+include M.Inner
+
+---
+
+(source_file
+  (include_declaration
+    (module_path
+      (module_path_expression
+        (module_name
+          (type_constructor))
+        (module_name
+          (type_constructor))))))
+
+==================
+type annotation and constraint expression
+==================
+
+let f = (x : Int) : Int => x : Int
+
+---
+
+(source_file
+  (value_definition
+    (lower_identifier)
+    (lambda_expression
+      (pattern_constraint
+        (parenthesized_pattern
+          (pattern_constraint
+            (lower_identifier)
+            (type_constructor_path
+              (type_constructor))))
+        (type_constructor_path
+          (type_constructor)))
+      (constraint_expression
+        (lower_identifier)
+        (type_constructor_path
+          (type_constructor))))))
+
+==================
+unit expression and empty parens lambda
+==================
+
+let one = () : Unit => ()
+let u = ()
+
+---
+
+(source_file
+  (value_definition
+    (lower_identifier)
+    (lambda_expression
+      (pattern_constraint
+        (pattern_literal
+          (unit_expression))
+        (type_constructor_path
+          (type_constructor)))
+      (unit_expression)))
+  (value_definition
+    (lower_identifier)
+    (unit_expression)))
+
+==================
+field access and function path
+==================
+
+let y = M.f(x)
+let op = M.(+)
+
+---
+
+(source_file
+  (value_definition
+    (lower_identifier)
+    (application_expression
+      (function_path_expression
+        (lower_qualified_path
+          (module_path
+            (module_path_expression
+              (module_name
+                (type_constructor))))
+          (lower_identifier)))
+      (argument_list
+        (lower_identifier))))
+  (value_definition
+    (lower_identifier)
+    (function_path_expression
+      (operator_path
+        (module_name
+          (type_constructor))
+        (infix_operator)))))
+
+==================
+type application expression
+==================
+
+let v = f[Int](x)
+let w = g[Int, String](y)
+
+---
+
+(source_file
+  (value_definition
+    (lower_identifier)
+    (application_expression
+      (type_application_expression
+        (lower_identifier)
+        (type_argument_list
+          (type_constructor_path
+            (type_constructor))))
+      (argument_list
+        (lower_identifier))))
+  (value_definition
+    (lower_identifier)
+    (application_expression
+      (type_application_expression
+        (lower_identifier)
+        (type_argument_list
+          (type_constructor_path
+            (type_constructor))
+          (type_constructor_path
+            (type_constructor))))
+      (argument_list
+        (lower_identifier)))))
+
+==================
+or pattern and tuple pattern
+==================
+
+let classify = p => {
+  case p {
+    (0, y) => y
+    (x, 0) => x
+    (Some(a) | None, _) => 0
+  }
+}
+
+---
+
+(source_file
+  (value_definition
+    (lower_identifier)
+    (lambda_expression
+      (lower_identifier)
+      (block
+        (case_expression
+          (lower_identifier)
+          (case_arm
+            (implicit_tuple_pattern
+              (pattern_literal
+                (number
+                  (decimal_number)))
+              (lower_identifier))
+            (lower_identifier))
+          (case_arm
+            (implicit_tuple_pattern
+              (lower_identifier)
+              (pattern_literal
+                (number
+                  (decimal_number))))
+            (lower_identifier))
+          (case_arm
+            (implicit_tuple_pattern
+              (pattern_or
+                (constructor_pattern
+                  (constructor_path
+                    (type_constructor))
+                  (lower_identifier))
+                (simple_constructor_pattern
+                  (constructor_path
+                    (type_constructor))))
+              (wildcard))
+            (number
+              (decimal_number))))))))
+
+==================
+list pattern with spread
+==================
+
+let len = xs => {
+  case xs {
+    [] => 0
+    [_, ...rest] => 1 + len(rest)
+  }
+}
+
+---
+
+(source_file
+  (value_definition
+    (lower_identifier)
+    (lambda_expression
+      (lower_identifier)
+      (block
+        (case_expression
+          (lower_identifier)
+          (case_arm
+            (list_pattern)
+            (number
+              (decimal_number)))
+          (case_arm
+            (list_pattern
+              (list_pattern_item
+                (wildcard))
+              (list_pattern_item
+                (lower_identifier)))
+            (binary_expression
+              (number
+                (decimal_number))
+              (application_expression
+                (lower_identifier)
+                (argument_list
+                  (lower_identifier))))))))))
+
+==================
+record pattern
+==================
+
+let getx = r => {
+  case r {
+    Record { x = xx } => xx
+  }
+}
+
+---
+
+(source_file
+  (value_definition
+    (lower_identifier)
+    (lambda_expression
+      (lower_identifier)
+      (block
+        (case_expression
+          (lower_identifier)
+          (case_arm
+            (record_pattern
+              (constructor_path
+                (type_constructor))
+              (pattern_record_row
+                (lower_identifier)
+                (lower_identifier)))
+            (lower_identifier)))))))
+
+==================
+for all type and arrows
+==================
+
+extern id : {a} => a -> a = "$identity"
+extern fold : {a, b} => (a -> b -> a) -> a -> List(b) -> a = "$fold"
+
+---
+
+(source_file
+  (extern_definition
+    (lower_identifier)
+    (type_forall
+      (forall_binders
+        (lower_identifier))
+      (type_arrow
+        (type_variable
+          (lower_identifier))
+        (type_variable
+          (lower_identifier))))
+    (string))
+  (extern_definition
+    (lower_identifier)
+    (type_forall
+      (forall_binders
+        (lower_identifier)
+        (lower_identifier))
+      (type_arrow
+        (parenthesized_type
+          (type_arrow
+            (type_variable
+              (lower_identifier))
+            (type_arrow
+              (type_variable
+                (lower_identifier))
+              (type_variable
+                (lower_identifier)))))
+        (type_arrow
+          (type_variable
+            (lower_identifier))
+          (type_arrow
+            (type_application
+              (type_constructor_path
+                (type_constructor))
+              (type_variable
+                (lower_identifier)))
+            (type_variable
+              (lower_identifier))))))
+    (string)))
+
+==================
+module definition and nested modules
+==================
+
+mod M = {
+  type T = Int
+  let x : T = 1
+  mod Inner = {
+    let y = 2
+  }
+}
+
+---
+
+(source_file
+  (module_definition
+    (module_name
+      (type_constructor))
+    (module_structure
+      (type_definition
+        (type_name
+          (type_constructor))
+        (type_constructor_path
+          (type_constructor)))
+      (value_definition
+        (pattern_constraint
+          (lower_identifier)
+          (type_constructor_path
+            (type_constructor)))
+        (number
+          (decimal_number)))
+      (module_definition
+        (module_name
+          (type_constructor))
+        (module_structure
+          (value_definition
+            (lower_identifier)
+            (number
+              (decimal_number))))))))
+
+==================
+module type definition
+==================
+
+mod type S = {
+  type T
+  val f : T -> T
+  val v : T
+}
+
+---
+
+(source_file
+  (module_type_definition
+    (module_name
+      (type_constructor))
+    (signature_structure
+      (signature_type
+        (type_name
+          (type_constructor)))
+      (signature_value
+        (lower_identifier)
+        (type_arrow
+          (type_constructor_path
+            (type_constructor))
+          (type_constructor_path
+            (type_constructor))))
+      (signature_value
+        (lower_identifier)
+        (type_constructor_path
+          (type_constructor))))))
+
+==================
+functor definition and application
+==================
+
+mod F = (X : S) => {
+  type T = X.T
+  let make = X.v
+}
+
+mod G = F(M)
+
+---
+
+(source_file
+  (module_definition
+    (module_name
+      (type_constructor))
+    (module_functor
+      (functor_parameter_list
+        (functor_parameter
+          (module_name
+            (type_constructor))
+          (signature_path
+            (signature_path_expression
+              (module_name
+                (type_constructor))))))
+      (module_structure
+        (type_definition
+          (type_name
+            (type_constructor))
+          (type_constructor_path
+            (type_constructor)
+            (type_constructor)))
+        (value_definition
+          (lower_identifier)
+          (function_path_expression
+            (lower_qualified_path
+              (module_path
+                (module_path_expression
+                  (module_name
+                    (type_constructor))))
+              (lower_identifier)))))))
+  (module_definition
+    (module_name
+      (type_constructor))
+    (module_application
+      (module_path
+        (module_path_expression
+          (module_name
+            (type_constructor))))
+      (module_argument_list
+        (module_path
+          (module_path_expression
+            (module_name
+              (type_constructor))))))))
+
+==================
+functor with two parameters and ascription
+==================
+
+mod H = (X : S, Y : S) => (M :> S)
+
+---
+
+(source_file
+  (module_definition
+    (module_name
+      (type_constructor))
+    (module_functor
+      (functor_parameter_list
+        (functor_parameter
+          (module_name
+            (type_constructor))
+          (signature_path
+            (signature_path_expression
+              (module_name
+                (type_constructor)))))
+        (functor_parameter
+          (module_name
+            (type_constructor))
+          (signature_path
+            (signature_path_expression
+              (module_name
+                (type_constructor))))))
+      (module_ascription
+        (module_path
+          (module_path_expression
+            (module_name
+              (type_constructor))))
+        (signature_path
+          (signature_path_expression
+            (module_name
+              (type_constructor))))))))
+
+==================
+with type refinement
+==================
+
+mod type S2 = S { type T = Int }
+
+mod Use = (P : S { type T = Int }) => {
+  let v : Int = P.v
+}
+
+---
+
+(source_file
+  (module_type_definition
+    (module_name
+      (type_constructor))
+    (signature_with
+      (signature_path
+        (signature_path_expression
+          (module_name
+            (type_constructor))))
+      (with_items
+        (with_item
+          (type_name
+            (type_constructor))
+          (type_constructor_path
+            (type_constructor))))))
+  (module_definition
+    (module_name
+      (type_constructor))
+    (module_functor
+      (functor_parameter_list
+        (functor_parameter
+          (module_name
+            (type_constructor))
+          (signature_with
+            (signature_path
+              (signature_path_expression
+                (module_name
+                  (type_constructor))))
+            (with_items
+              (with_item
+                (type_name
+                  (type_constructor))
+                (type_constructor_path
+                  (type_constructor)))))))
+      (module_structure
+        (value_definition
+          (pattern_constraint
+            (lower_identifier)
+            (type_constructor_path
+              (type_constructor)))
+          (function_path_expression
+            (lower_qualified_path
+              (module_path
+                (module_path_expression
+                  (module_name
+                    (type_constructor))))
+              (lower_identifier))))))))
+
+==================
+type substitution
+==================
+
+mod type C = S { type T := Int }
+
+mod X = (Impl :> C)
+
+---
+
+(source_file
+  (module_type_definition
+    (module_name
+      (type_constructor))
+    (signature_with
+      (signature_path
+        (signature_path_expression
+          (module_name
+            (type_constructor))))
+      (with_items
+        (with_item
+          (type_name
+            (type_constructor))
+          (type_constructor_path
+            (type_constructor))))))
+  (module_definition
+    (module_name
+      (type_constructor))
+    (module_ascription
+      (module_path
+        (module_path_expression
+          (module_name
+            (type_constructor))))
+      (signature_path
+        (signature_path_expression
+          (module_name
+            (type_constructor)))))))
+
+==================
+ascription and sealed functor
+==================
+
+mod IdFun : EndoFun = IdFun
+mod Sealed : Endo = (Base : Endo)
+
+---
+
+(source_file
+  (module_definition
+    (module_name
+      (type_constructor))
+    (module_annotation_body
+      (signature_path
+        (signature_path_expression
+          (module_name
+            (type_constructor))))
+      (module_path
+        (module_path_expression
+          (module_name
+            (type_constructor))))))
+  (module_definition
+    (module_name
+      (type_constructor))
+    (module_annotation_body
+      (signature_path
+        (signature_path_expression
+          (module_name
+            (type_constructor))))
+      (module_ascription
+        (module_path
+          (module_path_expression
+            (module_name
+              (type_constructor))))
+        (signature_path
+          (signature_path_expression
+            (module_name
+              (type_constructor))))))))
+
+==================
+lambda return annotation forms
+==================
+
+let inc = x : Int => x
+let sub = (a : Int, b : Int) : Int => a - b
+let one = () : Int => 1
+let poly = x : {a} => a => x
+let tuple = #(a : Int, b : Int) : Int => a
+
+---
+
+(source_file
+  (value_definition
+    (lower_identifier)
+    (lambda_expression
+      (pattern_constraint
+        (lower_identifier)
+        (type_constructor_path
+          (type_constructor)))
+      (lower_identifier)))
+  (value_definition
+    (lower_identifier)
+    (lambda_expression
+      (lambda_parameter_list
+        (pattern_constraint
+          (lower_identifier)
+          (type_constructor_path
+            (type_constructor)))
+        (pattern_constraint
+          (lower_identifier)
+          (type_constructor_path
+            (type_constructor))))
+      (type_constructor_path
+        (type_constructor))
+      (binary_expression
+        (lower_identifier)
+        (lower_identifier))))
+  (value_definition
+    (lower_identifier)
+    (lambda_expression
+      (pattern_constraint
+        (pattern_literal
+          (unit_expression))
+        (type_constructor_path
+          (type_constructor)))
+      (number
+        (decimal_number))))
+  (value_definition
+    (lower_identifier)
+    (lambda_expression
+      (pattern_constraint
+        (lower_identifier)
+        (type_forall
+          (forall_binders
+            (lower_identifier))
+          (type_variable
+            (lower_identifier))))
+      (lower_identifier)))
+  (value_definition
+    (lower_identifier)
+    (lambda_expression
+      (pattern_constraint
+        (tuple_pattern
+          (pattern_constraint
+            (lower_identifier)
+            (type_constructor_path
+              (type_constructor)))
+          (pattern_constraint
+            (lower_identifier)
+            (type_constructor_path
+              (type_constructor))))
+        (type_constructor_path
+          (type_constructor)))
+      (lower_identifier))))
+
+==================
+operator path from module
+==================
+
+mod M = {
+  let (+) = (a, b) => a
+}
+let applied = M.(+)(1, 2)
+
+---
+
+(source_file
+  (module_definition
+    (module_name
+      (type_constructor))
+    (module_structure
+      (value_definition
+        (let_name_operator
+          (infix_operator))
+        (lambda_expression
+          (lambda_parameter_list
+            (lower_identifier)
+            (lower_identifier))
+          (lower_identifier)))))
+  (value_definition
+    (lower_identifier)
+    (application_expression
+      (function_path_expression
+        (operator_path
+          (module_name
+            (type_constructor))
+          (infix_operator)))
+      (argument_list
+        (number
+          (decimal_number))
+        (number
+          (decimal_number))))))
+
+==================
+let operator with path
+==================
+
+let op = M.(+)
+
+---
+
+(source_file
+  (value_definition
+    (lower_identifier)
+    (function_path_expression
+      (operator_path
+        (module_name
+          (type_constructor))
+        (infix_operator)))))
+
+==================
+case with tuple subject and comma arms
+==================
+
+let cmp = p => case p {
+  (Lt, Lt) => Eq,
+  (Lt, Gt) => Lt,
+}
+
+---
+
+(source_file
+  (value_definition
+    (lower_identifier)
+    (lambda_expression
+      (lower_identifier)
+      (case_expression
+        (lower_identifier)
+        (case_arm
+          (implicit_tuple_pattern
+            (simple_constructor_pattern
+              (constructor_path
+                (type_constructor)))
+            (simple_constructor_pattern
+              (constructor_path
+                (type_constructor))))
+          (function_path_expression
+            (module_path
+              (module_path_expression
+                (module_name
+                  (type_constructor))))))
+        (case_arm
+          (implicit_tuple_pattern
+            (simple_constructor_pattern
+              (constructor_path
+                (type_constructor)))
+            (simple_constructor_pattern
+              (constructor_path
+                (type_constructor))))
+          (function_path_expression
+            (module_path
+              (module_path_expression
+                (module_name
+                  (type_constructor))))))))))
+
+==================
+local lets with let-op in expression position
+==================
+
+let r = {
+  let/bind a = f();
+  let b = g(a);
+  b + a
+}
+
+---
+
+(source_file
+  (value_definition
+    (lower_identifier)
+    (block
+      (expression_let
+        (let_operator)
+        (lower_identifier)
+        (application_expression
+          (lower_identifier)
+          (unit_expression))
+        (expression_let
+          (lower_identifier)
+          (application_expression
+            (lower_identifier)
+            (argument_list
+              (lower_identifier)))
+          (binary_expression
+            (lower_identifier)
+            (lower_identifier)))))))
+
+==================
+constructor expression and pattern
+==================
+
+let s = Some(1)
+let t = case s { Some(v) => v }
+
+---
+
+(source_file
+  (value_definition
+    (lower_identifier)
+    (application_expression
+      (function_path_expression
+        (module_path
+          (module_path_expression
+            (module_name
+              (type_constructor)))))
+      (argument_list
+        (number
+          (decimal_number)))))
+  (value_definition
+    (lower_identifier)
+    (case_expression
+      (lower_identifier)
+      (case_arm
+        (constructor_pattern
+          (constructor_path
+            (type_constructor))
+          (lower_identifier))
+        (lower_identifier)))))

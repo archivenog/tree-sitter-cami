@@ -1,0 +1,16 @@
+{
+  "name": "tree-sitter-camille",
+  "version": "0.0.1",
+  "description": "Tree-sitter grammar for the Camille programming language",
+  "main": "grammar.js",
+  "scripts": {
+    "generate": "tree-sitter generate",
+    "test": "tree-sitter test",
+    "parse": "tree-sitter parse"
+  },
+  "keywords": ["camille", "tree-sitter", "parser"],
+  "license": "MIT",
+  "devDependencies": {
+    "tree-sitter-cli": "^0.27.0"
+  }
+}
